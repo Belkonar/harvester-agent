@@ -1,0 +1,2 @@
+def scan(data):
+    pass
