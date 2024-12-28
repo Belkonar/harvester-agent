@@ -1,7 +1,7 @@
 from typing import Dict, List
 import json
 
-def fs_add(fields: Dict[str,List[str]], name: str, kind: str):
+def fs_add(fields: dict[str,list[str]], name: str, kind: str):
     if fields.__contains__(name):
         fields[name].append(kind)
     else:
@@ -11,21 +11,21 @@ def dive(prefix: str, element, fields: Dict[str,List[str]] = {}) -> Dict[str,Lis
     # Handle dictionaries (objects in JSON)
     if isinstance(element, dict):
         fs_add(fields, f"{prefix}", "object")
-         
+
         for prop_name, prop_value in element.items():
             dive(f"{prefix}.{prop_name}", prop_value, fields)
-    
+
     # Handle lists (arrays in JSON)
     elif isinstance(element, list):
         fs_add(fields, f"{prefix}", "array")
-        
+
         for elem in element:
             dive(f"{prefix}[]", elem, fields)
-    
+
     # Handle booleans
     elif isinstance(element, bool):
         fs_add(fields, prefix, "boolean")
-    
+
     # Handle other types
     else:
         # Get the type name for other values
@@ -35,8 +35,8 @@ def dive(prefix: str, element, fields: Dict[str,List[str]] = {}) -> Dict[str,Lis
     return fields
 
 
-def scan(data) -> Dict[str,List[str]]:
+def scan(data, prefix: str = "", fields: dict[str,list[str]] = {}) -> Dict[str,List[str]]:
     if isinstance(data, str):
         data = json.loads(data)
-    return dive("", data)
+    return dive(prefix, data, fields)
 

@@ -32,8 +32,11 @@ def get_dbs(conn_str) -> List[str]:
 
 def get_fields(conn_str):
     sql = """
-    SELECT table_catalog || '.' || table_schema || '.' || table_name as table, table_schema || '.' || table_name as short_name, "column_name", "data_type"
-        FROM information_schema.columns
+    SELECT
+        table_catalog || '.' || table_schema || '.' || table_name as table,
+        table_schema || '.' || table_name as short_name,
+        "column_name", "data_type"
+    FROM information_schema.columns
     WHERE
         table_catalog != 'postgres' AND
         NOT table_schema IN ('pg_catalog', 'information_schema');
@@ -45,12 +48,12 @@ def get_fields(conn_str):
 
             return cur.fetchall()
 
-
-
 conn_str = "host=localhost dbname={} user=postgres password=garden"
 dbs = get_dbs(conn_str.format("postgres"))
 
 all_fields = list(chain.from_iterable((get_fields(conn_str.format(x)) for x in dbs)))
+json_fields = [x for x in all_fields if x["data_type"] == "jsonb"]
+print(json_fields)
 
 source_req = {
     "id": source_id,
@@ -70,12 +73,13 @@ formatted_fields = [{
     "types": [x["data_type"]]
 } for x in all_fields]
 
-
 fields_req = {
     "source": source_id,
     "nonce": nonce,
     "fields": formatted_fields
 }
+
+exit(0)
 
 requests.put("http://localhost:3030/source", json=source_req)
 resp = requests.put("http://localhost:3030/tables", json=tables_req)
@@ -92,11 +96,3 @@ for fields_chunk in chunk(formatted_fields, 50):
 
 print(resp.text)
 
-"""
-    name        TEXT,
-    data_source UUID,
-    data_table  TEXT,
-    types       TEXT[],
-    nonce       UUID,
-    is_subfield BOOLEAN,
-"""

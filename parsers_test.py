@@ -47,7 +47,7 @@ class JsonParserTests(unittest.TestCase):
         """
 
         data = parsers.scan(json_data)
-        
+
         self.assertIn("object", data[""])
         self.assertIn("str", data[".restaurant.id"])
         self.assertIn("nonetype", data[".restaurant.locations[].state"])
@@ -80,5 +80,25 @@ class JsonParserTests(unittest.TestCase):
         self.assertIn("object", data[".mixed_array[]"])
         self.assertIn("int", data[".mixed_array[]"])
         self.assertIn("str", data[".mixed_array[].key"])
+
+    def test_prefix_multi(self):
+        json1 = """
+        {
+            "test": 1
+        }
+        """
+
+        json2 = """
+        {
+            "test": "2"
+        }
+        """
+
+        fields = {}
+        parsers.scan(json1, prefix="hi", fields=fields)
+        parsers.scan(json2, prefix="hi", fields=fields)
+
+        self.assertIn("str", fields["hi.test"])
+        self.assertIn("int", fields["hi.test"])
 
 
