@@ -1,4 +1,5 @@
 import unittest
+import parsers
 
 class JsonParserTests(unittest.TestCase):
     def test_basics(self):
@@ -44,8 +45,16 @@ class JsonParserTests(unittest.TestCase):
   }
 }
         """
+
+        data = parsers.scan(json_data)
         
-        self.assertEqual(1, 1)
+        self.assertIn("object", data[""])
+        self.assertIn("str", data[".restaurant.id"])
+        self.assertIn("nonetype", data[".restaurant.locations[].state"])
+        self.assertIn("array", data[".restaurant.locations"])
+        self.assertIn("float", data[".restaurant.locations[].coordinates.latitude"])
+        self.assertIn("boolean", data[".restaurant.menu_items[].available"])
+
 
     def test_adt(self):
         json_data = """
@@ -63,5 +72,13 @@ class JsonParserTests(unittest.TestCase):
 }
         """
 
-if __name__ == '__main__':
-    unittest.main()
+        data = parsers.scan(json_data)
+
+        self.assertIn("object", data[""])
+
+        self.assertIn("str", data[".mixed_array[]"])
+        self.assertIn("object", data[".mixed_array[]"])
+        self.assertIn("int", data[".mixed_array[]"])
+        self.assertIn("str", data[".mixed_array[].key"])
+
+
